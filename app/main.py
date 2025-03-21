@@ -3,8 +3,9 @@ from fastapi import FastAPI, APIRouter
 from fastapi_sqlalchemy import DBSessionMiddleware
 from dotenv import load_dotenv
 
-from app.sneakers import sneakers_router
-from app.core.main_router import router as main_router
+# Import role and user routes for authentication and RBAC
+from app.CRUD.routes.role import router as role_router
+from app.CRUD.routes.user import router as user_router
 from app.core.logger import init_logging
 
 load_dotenv(".env")
@@ -12,11 +13,14 @@ load_dotenv(".env")
 root_router = APIRouter()
 
 app = FastAPI(title="FastAPI Boiler Plate")
+
+# Add database middleware
 app.add_middleware(DBSessionMiddleware, db_url=os.environ["DATABASE_URL"])
 
-app.include_router(main_router)
-app.include_router(sneakers_router)
+# Register routes
 app.include_router(root_router)
+app.include_router(role_router)
+app.include_router(user_router)
 
 init_logging()
 

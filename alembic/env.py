@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-import os, sys
+import os, sys, importlib
 from alembic import context
 from dotenv import load_dotenv
 
@@ -27,7 +27,14 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 
 from app.core.db.session import Base
-from app.sneakers.models import Sneaker 
+# from app.sneakers.models import Sneaker 
+import app.CRUD.models
+models_package = "app.CRUD.models"
+models_path = os.path.join(BASE_DIR, "app", "CRUD", "models")
+
+for module in os.listdir(models_path):
+    if module.endswith(".py") and module != "__init__.py":
+        importlib.import_module(f"{models_package}.{module[:-3]}")
 
 target_metadata = Base.metadata
 
