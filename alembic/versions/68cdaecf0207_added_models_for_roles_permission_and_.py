@@ -59,4 +59,7 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_permissions_name'), table_name='permissions')
     op.drop_index(op.f('ix_permissions_id'), table_name='permissions')
     op.drop_table('permissions')
+    
+    op.execute("DROP TYPE IF EXISTS roleenum CASCADE;")
+    op.execute("DROP TYPE IF EXISTS permissionenum CASCADE;")
     # ### end Alembic commands ###
