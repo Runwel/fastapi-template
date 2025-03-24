@@ -34,7 +34,9 @@ models_path = os.path.join(BASE_DIR, "app", "CRUD", "models")
 
 for module in os.listdir(models_path):
     if module.endswith(".py") and module != "__init__.py":
-        importlib.import_module(f"{models_package}.{module[:-3]}")
+        importlib.import_module(f"{models_package}.{module[:-3]}")\
+
+# from app.email.models import Email
 
 target_metadata = Base.metadata
 

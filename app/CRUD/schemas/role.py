@@ -1,6 +1,14 @@
-from pydantic import BaseModel
-from app.core.enums import RoleEnum
+from pydantic import BaseModel, Field
+from typing import List, Literal
 
-class RoleSchema(BaseModel):
-    id: int
-    name: RoleEnum 
+class RoleCreateSchema(BaseModel):
+    name: str  
+    permissions: List[Literal["CREATE", "READ", "UPDATE", "DELETE"]] = Field(
+        example=["CREATE", "READ", "UPDATE", "DELETE"]  
+    )
+
+class RoleSchema(RoleCreateSchema):
+    id: int 
+
+    class Config:
+        orm_mode = True  # ✅ Allows SQLAlchemy objects to be converted to Pydantic

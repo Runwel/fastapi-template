@@ -1,19 +1,25 @@
 from pydantic import BaseModel
-from app.CRUD.schemas.role import RoleSchema
 
 # ✅ Schema for creating a user (includes password)
 class UserCreateSchema(BaseModel):
     username: str
     email: str
     password: str  # ✅ Include password
-    role: RoleSchema
+    approved: bool
+    role: str
 
 # ✅ Schema for returning user data (excludes password)
 class UserSchema(BaseModel):
     id: int
     username: str
     email: str
-    role: RoleSchema
+    approved: bool
+    role: str
+
+
+class LoginRequestSchema(BaseModel):
+    email: str  # User's email for login
+    password: str  # User's password for login
 
     class Config:
         orm_mode = True  # ✅ Allows SQLAlchemy to work with Pydantic
