@@ -3,6 +3,8 @@ from fastapi import HTTPException
 from app.CRUD.models.role import Role
 from typing import List
 
+PROTECTED_ROLES = {"ADMIN", "DEVELOPER"}
+
 def get_role_by_name(db: Session, role_name: str):
     return db.query(Role).filter(Role.name == role_name).first()
 
@@ -42,8 +44,6 @@ def update_role_permissions(db: Session, role_id: int, permissions: List[str]):
     role.permissions = permissions
     db.commit()
     return role
-
-PROTECTED_ROLES = {"ADMIN", "DEVELOPER"}
 
 def delete_role(db: Session, role_id: int):
     """Delete a role unless it is in the PROTECTED_ROLES list."""

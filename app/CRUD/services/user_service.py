@@ -7,7 +7,7 @@ from app.core.security import hash_password, verify_password, create_access_toke
 from fastapi import HTTPException
 
 def create_user(db: Session, user_data: UserCreateSchema):
-    # Check if the email or username already exists
+    
     existing_user = db.query(User).filter(
         (User.email == user_data.email) | (User.username == user_data.username)
     ).first()
@@ -18,7 +18,7 @@ def create_user(db: Session, user_data: UserCreateSchema):
     role = get_role_by_name(db, user_data.role)  # ✅ Now passing role as string
     
     if not role:
-        raise HTTPException(status_code=400, detail="Invalid role")  # ✅ Handle unknown roles
+        raise HTTPException(status_code=400, detail="Invalid role")
 
     hashed_password = hash_password(user_data.password)
 
@@ -27,7 +27,7 @@ def create_user(db: Session, user_data: UserCreateSchema):
         email=user_data.email,
         password=hashed_password,
         approved=True,
-        role=role  # ✅ Assign role object
+        role=role 
     )
 
     try:

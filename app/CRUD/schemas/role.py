@@ -11,4 +11,4 @@ class RoleSchema(RoleCreateSchema):
     id: int 
 
     class Config:
-        orm_mode = True  # ✅ Allows SQLAlchemy objects to be converted to Pydantic
+        orm_mode = True 

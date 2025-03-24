@@ -6,7 +6,7 @@ from app.CRUD.schemas.user import UserCreateSchema, UserSchema, LoginRequestSche
 from app.core.security import admin_required
 
 router = APIRouter()
-# , dependencies=[Depends(admin_required)]
+# Will be used in future functions for security purposes dependencies=[Depends(admin_required)]
 @router.post("/admin/users", response_model=UserSchema) 
 def register_user_admin(user_data: UserCreateSchema, db: Session = Depends(get_db)):
     return create_user(db, user_data)

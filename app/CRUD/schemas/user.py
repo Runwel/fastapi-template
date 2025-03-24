@@ -4,7 +4,7 @@ from pydantic import BaseModel
 class UserCreateSchema(BaseModel):
     username: str
     email: str
-    password: str  # ✅ Include password
+    password: str
     approved: bool
     role: str
 
@@ -18,8 +18,8 @@ class UserSchema(BaseModel):
 
 
 class LoginRequestSchema(BaseModel):
-    email: str  # User's email for login
-    password: str  # User's password for login
+    email: str 
+    password: str  
 
     class Config:
-        orm_mode = True  # ✅ Allows SQLAlchemy to work with Pydantic
+        orm_mode = True 

@@ -9,6 +9,7 @@ from app.core.db.session import get_db
 from datetime import datetime, timedelta
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")  # ✅ Adjust the login URL if needed
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_current_user(token: str = Security(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(status_code=401, detail="Invalid authentication credentials")
@@ -30,8 +31,6 @@ def admin_required(user: User = Depends(get_current_user)):
     if user.role.name != "ADMIN":
         raise HTTPException(status_code=403, detail="Admin access required")
     return user
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
