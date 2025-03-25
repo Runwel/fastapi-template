@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from app.CRUD.models.role import Role
+from app.auth.models.role import Role
 from typing import List
 
 PROTECTED_ROLES = {"ADMIN", "DEVELOPER"}

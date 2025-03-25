@@ -28,9 +28,9 @@ if config.config_file_name is not None:
 
 from app.core.db.session import Base
 # from app.sneakers.models import Sneaker 
-import app.CRUD.models
-models_package = "app.CRUD.models"
-models_path = os.path.join(BASE_DIR, "app", "CRUD", "models")
+import app.auth.models
+models_package = "app.auth.models"
+models_path = os.path.join(BASE_DIR, "app", "auth", "models")
 
 for module in os.listdir(models_path):
     if module.endswith(".py") and module != "__init__.py":
