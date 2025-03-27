@@ -8,12 +8,12 @@ import os
 from typing import List
 from fastapi.responses import FileResponse
 
-# Router and upload directory setup
+#Router and upload directory setup
 router = APIRouter()
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# ✅ Utility functions for file management
+#Utility functions for file management
 def get_folder_path(folder_name: str) -> str:
     """Get or create folder path."""
     folder_path = os.path.join(UPLOAD_DIR, folder_name)
@@ -28,7 +28,7 @@ def save_file_to_disk(folder_name: str, file: UploadFile) -> str:
         f.write(file.file.read())
     return file_location
 
-# ✅ Upload a file and save it in the database
+# Upload a file and save it in the database
 @router.post("/upload")
 async def upload_file(
     folder_name: str,
@@ -58,7 +58,7 @@ async def upload_file(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to upload file: {str(e)}")
 
-# ✅ List all files in a folder (DB + Disk)
+# list all files in a folder (DB + Disk)
 @router.get("/files/{folder_name}")
 def list_folder_files(folder_name: str, db: Session = Depends(get_db)):
     try:
@@ -87,7 +87,7 @@ def list_folder_files(folder_name: str, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to list files: {str(e)}")
 
-# ✅ Download a file by filename
+# Download a file by filename
 
 @router.get("/download/{folder_name}/{filename}")
 def download_file(folder_name: str, filename: str, db: Session = Depends(get_db)):
@@ -116,7 +116,7 @@ def download_file(folder_name: str, filename: str, db: Session = Depends(get_db)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to download file: {str(e)}")
 
-# ✅ Delete a file by filename (DB + Disk)
+# Delete a file by filename (DB + Disk)
 @router.delete("/delete/{folder_name}/{filename}")
 def delete_file(folder_name: str, filename: str, db: Session = Depends(get_db)):
     try:
