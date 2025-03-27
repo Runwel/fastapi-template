@@ -6,6 +6,8 @@ __pycache__/
 # Test database
 test.db
 
+*.pdf
+/uploads/*.pdf
 # C extensions
 *.so
 
