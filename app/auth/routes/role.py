@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.CRUD.services.role_service import (
+from app.auth.services.role_service import (
     create_role, update_role_permissions, get_all_roles, delete_role
 )
 from app.core.db.session import get_db
-from app.CRUD.schemas.role import RoleCreateSchema, RoleSchema
+from app.auth.schemas.role import RoleCreateSchema, RoleSchema
 from typing import List
 
 router = APIRouter(prefix="/roles", tags=["Roles"])
