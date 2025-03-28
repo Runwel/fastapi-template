@@ -2,6 +2,10 @@ from pydantic import BaseModel, validator, EmailStr, Field
 from datetime import date, datetime
 import re
 
+class LoginSchema(BaseModel):
+    email: EmailStr = Field(..., example="user123@example.com")
+    password: str = Field(..., min_length=8, example="Secure@1234")
+
 class UserSchema(BaseModel):
     username: str = Field(..., min_length=4, max_length=20, example="user123")
     email: EmailStr = Field(..., example="user123@example.com")

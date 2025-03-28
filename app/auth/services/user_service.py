@@ -27,7 +27,8 @@ def create_user_admin(db: Session, user_data: UserSchema):
         username=user_data.username,
         email=user_data.email,
         password=hashed_password,
-        approved="approved",
+        birthdate=user_data.birthdate,
+        status="approved",
         role=role 
     )
 
@@ -38,15 +39,17 @@ def create_user_admin(db: Session, user_data: UserSchema):
         logger.success("Account created by Super Admin is created")
     except IntegrityError:
         db.rollback()
-        raise HTTPException(status_code=400, detail="Email or username already exists")
+        raise HTTPException(status_code=400, detail="Emailw or username already exists")
 
-    return UserSchema(
-        id=new_user.id,
-        username=new_user.username,
-        email=new_user.email,
-        status=new_user.status,
-        role=new_user.role.name 
-    )
+    return {
+        "message": "Account creation successful",
+        "user": {
+            "username": new_user.username,
+            "email": new_user.email,
+            "rolename": role.name,
+            "permission": role.permissions
+        }
+    }
 
 def login_user(db: Session, login_data: UserSchema):
 
@@ -63,8 +66,10 @@ def login_user(db: Session, login_data: UserSchema):
     if user.status != "approved":
         raise HTTPException(status_code=403, detail="Your account is not approved yet. Please wait for registrar approval.")
 
+    role = user.role
+
     # Generate JWT token
-    access_token = create_access_token(data={"sub": user.id})
+    access_token = create_access_token(data={"sub": str(user.id), "role": role.name, "permissions": role.permissions})
 
     return {
         "message": "Login successful",
@@ -73,7 +78,9 @@ def login_user(db: Session, login_data: UserSchema):
         "user": {
             "username": user.username,
             "email": user.email,
-            "status": user.status
+            "status": user.status,
+            "rolename": role.name,
+            "permission": role.permissions
         }
     }
     
@@ -153,3 +160,48 @@ def list_users(db: Session, status: str = "all"):
     return {
         "users": [{"id": u.id, "username": u.username, "status": u.status} for u in users]
     }
+
+# def google_login(db: Session, google_token: str):
+#     """Authenticate using Google OAuth2 token and return JWT."""
+
+#     user_data = verify_google_oauth2_token(google_token)
+#     if not user_data:
+#         raise HTTPException(status_code=401, detail="Invalid Google authentication token")
+
+#     email = user_data.get("email")
+#     name = user_data.get("name")
+#     google_id = user_data.get("sub")  # Unique Google user ID
+
+#     # Check if user already exists
+#     user = db.query(User).filter(User.email == email).first()
+
+#     if not user:
+#         # Auto-register Google users with default role
+#         default_role = get_role_by_name(db, "GUEST")
+
+#         user = User(
+#             username=name,
+#             email=email,
+#             google_id=google_id,  # Store Google ID
+#             status="approved",
+#             role=default_role
+#         )
+#         db.add(user)
+#         db.commit()
+#         db.refresh(user)
+
+#     # Generate JWT token
+#     access_token = create_access_token(data={"sub": user.id, "role": user.role.name, "permissions": user.role.permissions})
+
+#     return {
+#         "message": "Google login successful",
+#         "access_token": access_token,
+#         "token_type": "bearer",
+#         "user": {
+#             "username": user.username,
+#             "email": user.email,
+#             "status": user.status,
+#             "rolename": user.role.name,
+#             "permission": user.role.permissions
+#         }
+#     }
