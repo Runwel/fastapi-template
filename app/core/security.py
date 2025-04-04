@@ -65,9 +65,6 @@ def create_access_token(data: dict):
 
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
-def get_token_expires_in() -> timedelta:
-    return timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 

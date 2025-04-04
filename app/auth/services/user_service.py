@@ -1,55 +1,15 @@
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
-from app.auth.models.user import User
-from app.auth.schemas.user import UserSchema
-from app.auth.services.role_service import get_role_by_name
-from app.core.security import hash_password, verify_password, create_access_token
 from fastapi import HTTPException
 from loguru import logger
-
-def create_user_admin(db: Session, user_data: UserSchema):
-    
-    existing_user = db.query(User).filter(
-        (User.email == user_data.email) | (User.username == user_data.username)
-    ).first()
-
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email or username already registered")
-
-    role = get_role_by_name(db, user_data.role)  # ✅ Now passing role as string
-    
-    if not role:
-        raise HTTPException(status_code=400, detail="Invalid role")
-
-    hashed_password = hash_password(user_data.password)
-
-    new_user = User(
-        username=user_data.username,
-        email=user_data.email,
-        password=hashed_password,
-        birthdate=user_data.birthdate,
-        status="approved",
-        role=role 
-    )
-
-    try:
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
-        logger.success("Account created by Super Admin is created")
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=400, detail="Emailw or username already exists")
-
-    return {
-        "message": "Account creation successful",
-        "user": {
-            "username": new_user.username,
-            "email": new_user.email,
-            "rolename": role.name,
-            "permission": role.permissions
-        }
-    }
+from datetime import datetime
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
+from datetime import datetime, timedelta
+from app.auth.models.user import User
+from app.auth.schemas.user import UserSchema
+from app.auth.schemas.email import ResetPasswordSchema
+from app.auth.services.role_service import get_role_by_name
+from app.core.security import hash_password, verify_password, create_access_token
+from app.utils.email_service import send_email
 
 def login_user(db: Session, login_data: UserSchema):
 
@@ -83,7 +43,7 @@ def login_user(db: Session, login_data: UserSchema):
             "permission": role.permissions
         }
     }
-    
+   
 def register_user(db: Session, register_data: UserSchema):
 
     existing_user = db.query(User).filter(
@@ -124,42 +84,46 @@ def register_user(db: Session, register_data: UserSchema):
         }
     }
 
-def approve_user(db: Session, user_id: int, status: str):
-    if status not in ["approved", "pending"]:
-        raise HTTPException(status_code=400, detail="Invalid status")
-
-    user = db.query(User).filter(User.id == user_id).first()
-
+def request_password_reset(db: Session, email: str):
+    """Request password reset by sending email with reset link."""
+    user = db.query(User).filter(User.email == email).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-
-    if user.status == "approved":
-        raise HTTPException(status_code=400, detail="User is already approved")
-
-    user.status = status
+    
+    reset_token_data = {"sub": str(user.id)}  
+    token = create_access_token(reset_token_data)  
+    
+    user.reset_token = token
+    user.reset_token_expiry = datetime.utcnow() + timedelta(minutes=15)
     db.commit()
 
-    return {
-        "message": f" User status updated to {status}",
-        "user": {
-            "id": user.id,
-            "username": user.username,
-            "status": user.status
-        }
-    }
+    frontend_reset_link = f"sample.com/reset-password?token={token}"
 
-def list_users(db: Session, status: str = "all"):
+    send_email(
+        to=email,
+        subject="Password Reset Request",
+        body=f"Click the link below to reset your password:\n\n{frontend_reset_link}\n\nThis link will expire in 15 minutes."
+    )
 
-    query = db.query(User)
+    return {"message": "Password reset link has been sent to your email."}
 
-    if status in ["pending", "approved"]:
-        query = query.filter(User.status == status)
+def reset_password_confirm(db: Session , token: str, reset_data: ResetPasswordSchema):
+    user = db.query(User).filter(User.reset_token == token).first()
 
-    users = query.all()
+    if not user or not user.reset_token_expiry or user.reset_token_expiry < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    
+    reset_data = ResetPasswordSchema(
+        new_password=reset_data.new_password,
+        confirm_password=reset_data.confirm_password
+    )
 
-    return {
-        "users": [{"id": u.id, "username": u.username, "status": u.status} for u in users]
-    }
+    user.password = hash_password(reset_data.new_password)
+    user.reset_token = None
+    user.reset_token_expiry = None
+    db.commit()
+
+    return {"message": "Password has been reset successfully"}
 
 # def google_login(db: Session, google_token: str):
 #     """Authenticate using Google OAuth2 token and return JWT."""
@@ -205,3 +169,14 @@ def list_users(db: Session, status: str = "all"):
 #             "permission": user.role.permissions
 #         }
 #     }
+    user = db.query(User).filter(User.reset_token == token).first()
+
+    if not user or not user.reset_token_expiry or user.reset_token_expiry < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    
+    user.password = hash_password(reset_data.new_password)
+    user.reset_token = None
+    user.reset_token_expiry =  None
+    db.commit()
+
+    return {"messsage": "Password has been reset successfully"}

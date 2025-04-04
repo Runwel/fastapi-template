@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator, EmailStr, Field
+from pydantic import BaseModel, field_validator, EmailStr, Field
 from datetime import date, datetime
 import re
 
@@ -14,14 +14,14 @@ class UserSchema(BaseModel):
     role: str = Field(..., example="STUDENT")
 
     # Alphanumeric only
-    @validator("username")
+    @field_validator("username")
     def validate_username(cls, v):
         if not re.match(r"^[a-zA-Z0-9 ]+$", v):
             raise ValueError("Username must be alphanumeric and may contain spaces, but no special characters")
         return v
 
     # Min 8 chars, upper, lower, digit, and special char
-    @validator("password")
+    @field_validator("password")
     def validate_password(cls, v):
         if not re.match(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", v):
             raise ValueError(
@@ -30,7 +30,7 @@ class UserSchema(BaseModel):
         return v
 
     # User must be at least 18 years old
-    @validator("birthdate")
+    @field_validator("birthdate")
     def validate_birthdate(cls, v):
         today = datetime.today().date()
         age = (today - v).days // 365

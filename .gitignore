@@ -136,4 +136,4 @@ dmypy.json
 poetry.lock
 
 # Payment
-app/payment
+app/receipt_scanner/

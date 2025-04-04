@@ -7,8 +7,5 @@ class RoleCreateSchema(BaseModel):
         example=["CREATE", "READ", "UPDATE", "DELETE"]  
     )
 
-class RoleSchema(RoleCreateSchema):
-    id: int 
-
     class Config:
         orm_mode = True 
