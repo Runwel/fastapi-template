@@ -28,7 +28,7 @@ if config.config_file_name is not None:
 
 from app.core.db.session import Base
 # from app.sneakers.models import Sneaker 
-from app.payment.model import Transaction
+from app.receipt_scanner.model import Receipts
 import app.auth.models
 models_package = "app.auth.models"
 models_path = os.path.join(BASE_DIR, "app", "auth", "models")

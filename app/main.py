@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from app.auth.routes.role import router as role_router
 from app.auth.routes.user import router as user_router
 from app.auth.routes.file import router as file_router 
-from app.payment.route import router as payment_router
+from app.receipt_scanner.route import router as receipt_router
 from app.auth.routes.admin import router as admin_router
 from app.core.logger import init_logging
 
@@ -28,7 +28,7 @@ app.include_router(user_router, prefix="/auth", tags=["Auth"])
 app.include_router(file_router, prefix="/files", tags=["Files"])
 
 # Payment route
-app.include_router(payment_router, prefix="/payments", tags=["Payments"])
+app.include_router(receipt_router, prefix="/receipt", tags=["Receipt"])
 
 init_logging()
 

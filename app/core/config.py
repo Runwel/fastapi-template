@@ -11,7 +11,6 @@ class Settings(BaseSettings):
     PGADMIN_EMAIL: str
     PGADMIN_PASSWORD: str
     X_TOKEN: str
-    PAYMONGO_SECRET_KEY: str
 
     # Email SMTP Config
     SMTP_SERVER: str = "smtp.gmail.com"
@@ -19,6 +18,9 @@ class Settings(BaseSettings):
     SMTP_USERNAME: str
     SMTP_PASSWORD: str
     EMAIL_FROM: str
+
+    SUPABASE_URL: str
+    SUPABASE_API_KEY: str
 
     class Config:
         env_file = ".env"  # Ensure the .env file is loaded

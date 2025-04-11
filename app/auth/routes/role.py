@@ -29,7 +29,7 @@ def get_roles(db: Session = Depends(get_db), user: User = Depends(admin_or_dev_u
     return get_all_roles(db, user)
 
 @router.delete("/{role_id}")
-def remove_role(role_id: int, db: Session = Depends(db_session), user: User = Depends(admin_or_dev_user)):
+def remove_role(role_id: int, db: Session = Depends(get_db), user: User = Depends(admin_or_dev_user)):
     role = delete_role(db, role_id, user)
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
